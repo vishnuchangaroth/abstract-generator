@@ -1,279 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abstract PDF Creator</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tabler Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-    <!-- html2pdf.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abstract PDF Creator</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Tabler Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<!-- html2pdf.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
 
-        /* --- PDF PRINT LAYOUT (A4) --- */
-        #pdf-template {
-            width: 210mm;
-            height: 296.5mm; /* Prevents blank second page */
-            padding: 1in;
-            background: white;
-            color: #000;
-            font-family: "Times New Roman", Times, serif;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-            margin: 0 auto;
-            page-break-inside: avoid;
-        }
+    /* --- PDF PRINT LAYOUT (A4) --- */
+    #pdf-template {
+        width: 210mm;
+        height: 296.5mm; /* Prevents blank second page */
+        padding: 1in;
+        background: white;
+        color: #000;
+        font-family: "Times New Roman", Times, serif;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        margin: 0 auto;
+        page-break-inside: avoid;
+    }
 
-        .pdf-title { 
-            text-align: center; 
-            font-weight: bold; 
-            font-size: 16pt; /* Topic: 16pt */
-            text-transform: uppercase; 
-            margin-bottom: 5px; 
-            color: #000;
-        }
-        
-        .pdf-hr { border: 0; border-top: 1.5pt solid black; margin-bottom: 25px; }
-        
-        .pdf-abstract-label { 
-            text-align: center; 
-            font-weight: bold; 
-            font-size: 14pt; /* Abstract Word: 14pt */
-            text-transform: uppercase; 
-            margin-bottom: 15px; 
-            color: #000;
-        }
+    .pdf-title { 
+        text-align: center; 
+        font-weight: bold; 
+        font-size: 16pt; /* Topic: 16pt */
+        text-transform: uppercase; 
+        margin-bottom: 5px; 
+        color: #000;
+    }
+    
+    .pdf-hr { border: 0; border-top: 1.5pt solid black; margin-bottom: 25px; }
+    
+    .pdf-abstract-label { 
+        text-align: center; 
+        font-weight: bold; 
+        font-size: 14pt; /* Abstract Word: 14pt */
+        text-transform: uppercase; 
+        margin-bottom: 15px; 
+        color: #000;
+    }
 
-        .pdf-body-area { flex: 1; color: #000; }
+    .pdf-body-area { flex: 1; color: #000; }
 
-        .pdf-para {
-            text-align: justify;
-            font-size: 12pt; /* Content: 12pt */
-            line-height: 1.5;
-            text-indent: 0.5in;
-            margin-bottom: 10px;
-        }
+    .pdf-para {
+        text-align: justify;
+        font-size: 12pt; /* Content: 12pt */
+        line-height: 1.5;
+        text-indent: 0.5in;
+        margin-bottom: 10px;
+    }
 
-        .pdf-keywords-row {
-            text-align: justify;
-            font-size: 12pt;
-            line-height: 1.5;
-            margin-top: 15px;
-            text-indent: 0;
-        }
+    .pdf-keywords-row {
+        text-align: justify;
+        font-size: 12pt;
+        line-height: 1.5;
+        margin-top: 15px;
+        text-indent: 0;
+    }
 
-        /* --- FOOTER POSITIONING --- */
-        .pdf-footer-wrapper {
-            margin-top: auto;
-            display: flex;
-            justify-content: flex-end; 
-        }
+    /* --- FOOTER POSITIONING --- */
+    .pdf-footer-wrapper {
+        margin-top: auto;
+        display: flex;
+        justify-content: flex-end; 
+    }
 
-        .pdf-footer-block {
-            text-align: left; 
-            font-size: 12pt; /* Submitted by area: 12pt */
-            line-height: 1.5;
-            color: #000; /* Pure Black as requested */
-        }
+    .pdf-footer-block {
+        text-align: left; 
+        font-size: 12pt; /* Submitted by area: 12pt */
+        line-height: 1.5;
+        color: #000; /* Pure Black as requested */
+    }
 
-        .submitted-label {
-            font-style: italic;
-            margin-bottom: 2px;
-            color: #000;
-        }
+    .submitted-label {
+        font-style: italic;
+        margin-bottom: 2px;
+        color: #000;
+    }
 
-        .submitted-details {
-            padding-left: 20px; /* Internal indentation */
-            color: #000;
-        }
+    .submitted-details {
+        padding-left: 20px; /* Internal indentation */
+        color: #000;
+    }
 
-        /* --- UI PREVIEW SCALING --- */
-        .preview-pane {
-            background-color: #e2e8f0;
-            display: flex;
-            justify-content: center;
-            overflow: auto;
-            padding: 40px 10px;
-            height: calc(100vh - 64px);
-        }
+    /* --- UI PREVIEW SCALING --- */
+    .preview-pane {
+        background-color: #e2e8f0;
+        display: flex;
+        justify-content: center;
+        overflow: auto;
+        padding: 40px 10px;
+        height: calc(100vh - 64px);
+    }
 
-        #preview-scaler {
-            transform-origin: top center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            transform: scale(0.35); 
-        }
+    #preview-scaler {
+        transform-origin: top center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        transform: scale(0.35); 
+    }
 
-        @media (min-width: 768px) { #preview-scaler { transform: scale(0.5); } }
-        @media (min-width: 1024px) { #preview-scaler { transform: scale(0.7); } }
-        @media (min-width: 1280px) { #preview-scaler { transform: scale(0.85); } }
-        
-        .sidebar-height { height: calc(100vh - 64px); }
-    </style>
+    @media (min-width: 768px) { #preview-scaler { transform: scale(0.5); } }
+    @media (min-width: 1024px) { #preview-scaler { transform: scale(0.7); } }
+    @media (min-width: 1280px) { #preview-scaler { transform: scale(0.85); } }
+    
+    .sidebar-height { height: calc(100vh - 64px); }
+</style>
 </head>
 <body class="overflow-hidden">
 
-    <!-- Header -->
-    <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-50 relative">
-        <div class="flex items-center gap-2">
-            <i class="ti ti-file-text text-indigo-600 text-2xl"></i>
-            <span class="font-bold text-slate-800 text-lg tracking-tight">Abstract PDF Creator</span>
-        </div>
-        <button onclick="downloadPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all shadow-md active:scale-95">
-            <i class="ti ti-download text-lg"></i> Download PDF
-        </button>
-    </header>
-
-    <div class="flex flex-col lg:flex-row">
-        
-        <!-- Sidebar Input Section -->
-        <aside class="w-full lg:w-[400px] bg-white border-r border-slate-200 sidebar-height overflow-y-auto p-6">
-            <div class="space-y-6">
-                <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded shadow-sm">
-                    <p class="text-xs font-bold text-indigo-700 uppercase mb-1 tracking-widest">Guide</p>
-                    <p class="text-sm text-indigo-900 leading-snug">
-                        Paragraphs indent automatically. Start a line with <b>"Keywords:"</b> for bold-italic formatting.
-                    </p>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Topic Heading</label>
-                        <input type="text" id="inTopic" oninput="sync()" placeholder="Topic Heading" 
-                            class="w-full border border-slate-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Abstract Content</label>
-                        <textarea id="inAbstract" oninput="sync()" rows="10" placeholder="Type content here..." 
-                            class="w-full border border-slate-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Author Name</label>
-                            <input type="text" id="inName" oninput="sync()" placeholder="Name" 
-                                class="w-full border border-slate-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Roll Number</label>
-                            <input type="text" id="inRoll" oninput="sync()" placeholder="Roll No" 
-                                class="w-full border border-slate-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Semester</label>
-                            <select id="inSem" onchange="sync()" class="w-full border border-slate-200 p-2.5 rounded-lg outline-none bg-slate-50 font-medium cursor-pointer">
-                                <option value="1">S1</option><option value="2">S2</option><option value="3">S3</option>
-                                <option value="4">S4</option><option value="5" selected>S5</option><option value="6">S6</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Branch</label>
-                            <select id="inBranch" onchange="sync()" class="w-full border border-slate-200 p-2.5 rounded-lg outline-none bg-slate-50 font-medium cursor-pointer">
-                                <option value="CE">CE</option>
-                                <option value="BME">BME</option>
-                                <option value="CHE" selected>CHE</option>
-                                <option value="ELE">ELE</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Preview Main Area -->
-        <main class="flex-1 preview-pane">
-            <div id="preview-scaler">
-                <div id="pdf-template">
-                    <div id="outTopic" class="pdf-title">TOPIC HEADING</div>
-                    <hr class="pdf-hr">
-                    
-                    <div class="pdf-abstract-label">ABSTRACT</div>
-
-                    <div id="outBody" class="pdf-body-area">
-                        <!-- JS Dynamic Content -->
-                    </div>
-
-                    <!-- Footer correctly aligned bottom-right, text color black -->
-                    <div class="pdf-footer-wrapper">
-                        <div class="pdf-footer-block">
-                            <div class="submitted-label">Submitted by:</div>
-                            <div class="submitted-details">
-                                <div id="outName">Author Name</div>
-                                <div>Roll No: <span id="outRoll">00</span></div>
-                                <div id="outString">S5CHE</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+<!-- Header -->
+<header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-50 relative">
+    <div class="flex items-center gap-2">
+        <i class="ti ti-file-text text-indigo-600 text-2xl"></i>
+        <span class="font-bold text-slate-800 text-lg tracking-tight">Abstract PDF Creator</span>
     </div>
+    <button onclick="downloadPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-all shadow-md active:scale-95">
+        <i class="ti ti-download text-lg"></i> Download PDF
+    </button>
+</header>
 
-    <script>
-        function sync() {
-            const topic = document.getElementById('inTopic').value.trim() || "TOPIC HEADING";
-            const rawText = document.getElementById('inAbstract').value.trim() || "Type abstract text here. \n\nKeywords: keyword1, keyword2.";
-            const name = document.getElementById('inName').value.trim() || "Author Name";
-            const roll = document.getElementById('inRoll').value.trim() || "00";
-            const sem = document.getElementById('inSem').value;
-            const branch = document.getElementById('inBranch').value;
+<div class="flex flex-col lg:flex-row">
+    
+    <!-- Sidebar Input Section -->
+    <aside class="w-full lg:w-[400px] bg-white border-r border-slate-200 sidebar-height overflow-y-auto p-6">
+        <div class="space-y-6">
+            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded shadow-sm">
+                <p class="text-xs font-bold text-indigo-700 uppercase mb-1 tracking-widest">Guide</p>
+                <p class="text-sm text-indigo-900 leading-snug">
+                    Paragraphs indent automatically. Start a line with <b>"Keywords:"</b> for bold-italic formatting.
+                </p>
+            </div>
 
-            // PDF Updates
-            document.getElementById('outTopic').innerText = topic.toUpperCase();
-            document.getElementById('outName').innerText = name;
-            document.getElementById('outRoll').innerText = roll;
-            document.getElementById('outString').innerText = `S${sem}${branch}`;
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Topic Heading</label>
+                    <input type="text" id="inTopic" oninput="sync()" placeholder="Topic Heading" 
+                        class="w-full border border-slate-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                </div>
 
-            const body = document.getElementById('outBody');
-            body.innerHTML = '';
-            
-            const lines = rawText.split('\n');
-            lines.forEach(line => {
-                if (line.trim().length > 0) {
-                    const div = document.createElement('div');
-                    if (line.toLowerCase().startsWith('keywords:')) {
-                        div.className = 'pdf-keywords-row';
-                        // Logic: "Keywords:" is Bold+Italic, content is normal.
-                        div.innerHTML = `<i><strong>Keywords:</strong></i> ${line.substring(9).trim()}`;
-                    } else {
-                        div.className = 'pdf-para';
-                        div.innerText = line.trim();
-                    }
-                    body.appendChild(div);
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Abstract Content</label>
+                    <textarea id="inAbstract" oninput="sync()" rows="10" placeholder="Type content here..." 
+                        class="w-full border border-slate-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Author Name</label>
+                        <input type="text" id="inName" oninput="sync()" placeholder="Name" 
+                            class="w-full border border-slate-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Roll Number</label>
+                        <input type="text" id="inRoll" oninput="sync()" placeholder="Roll No" 
+                            class="w-full border border-slate-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Semester</label>
+                        <select id="inSem" onchange="sync()" class="w-full border border-slate-200 p-2.5 rounded-lg outline-none bg-slate-50 font-medium cursor-pointer">
+                            <option value="1">S1</option><option value="2">S2</option><option value="3">S3</option>
+                            <option value="4">S4</option><option value="5" selected>S5</option><option value="6">S6</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Branch</label>
+                        <select id="inBranch" onchange="sync()" class="w-full border border-slate-200 p-2.5 rounded-lg outline-none bg-slate-50 font-medium cursor-pointer">
+                            <option value="CE">CE</option>
+                            <option value="BME">BME</option>
+                            <option value="CHE" selected>CHE</option>
+                            <option value="ELE">ELE</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Preview Main Area -->
+    <main class="flex-1 preview-pane">
+        <div id="preview-scaler">
+            <div id="pdf-template">
+                <div id="outTopic" class="pdf-title">TOPIC HEADING</div>
+                <hr class="pdf-hr">
+                
+                <div class="pdf-abstract-label">ABSTRACT</div>
+
+                <div id="outBody" class="pdf-body-area">
+                    <!-- JS Dynamic Content -->
+                </div>
+
+                <!-- Footer correctly aligned bottom-right, text color black -->
+                <div class="pdf-footer-wrapper">
+                    <div class="pdf-footer-block">
+                        <div class="submitted-label">Submitted by:</div>
+                        <div class="submitted-details">
+                            <div id="outName">Author Name</div>
+                            <div>Roll No: <span id="outRoll">00</span></div>
+                            <div id="outString">S5CHE</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function sync() {
+        const topic = document.getElementById('inTopic').value.trim() || "TOPIC HEADING";
+        const rawText = document.getElementById('inAbstract').value.trim() || "Type abstract text here. \n\nKeywords: keyword1, keyword2.";
+        const name = document.getElementById('inName').value.trim() || "Author Name";
+        const roll = document.getElementById('inRoll').value.trim() || "00";
+        const sem = document.getElementById('inSem').value;
+        const branch = document.getElementById('inBranch').value;
+
+        // PDF Updates
+        document.getElementById('outTopic').innerText = topic.toUpperCase();
+        document.getElementById('outName').innerText = name;
+        document.getElementById('outRoll').innerText = roll;
+        document.getElementById('outString').innerText = `S${sem}${branch}`;
+
+        const body = document.getElementById('outBody');
+        body.innerHTML = '';
+        
+        const lines = rawText.split('\n');
+        lines.forEach(line => {
+            if (line.trim().length > 0) {
+                const div = document.createElement('div');
+                if (line.toLowerCase().startsWith('keywords:')) {
+                    div.className = 'pdf-keywords-row';
+                    // Logic: "Keywords:" is Bold+Italic, content is normal.
+                    div.innerHTML = `<i><strong>Keywords:</strong></i> ${line.substring(9).trim()}`;
+                } else {
+                    div.className = 'pdf-para';
+                    div.innerText = line.trim();
                 }
-            });
-        }
+                body.appendChild(div);
+            }
+        });
+    }
 
-        async function downloadPDF() {
-            const element = document.getElementById('pdf-template');
-            const topic = document.getElementById('inTopic').value.trim() || 'Abstract';
-            const opt = {
-                margin: 0,
-                filename: `${topic.replace(/\s+/g, '_')}.pdf`,
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 3, useCORS: true, letterRendering: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            await html2pdf().set(opt).from(element).save();
-        }
-
-        window.onload = () => {
-            // Initial Preset matching user reference
-            document.getElementById('inTopic').value = "IN-MEMORY COMPUTING";
-            document.getElementById('inName').value = "Vishnu C H";
-            document.getElementById('inRoll').value = "60";
-            document.getElementById('inAbstract').value = "The rapid growth of Artificial Intelligence (AI), Machine Learning (ML), and data intensive applications has significantly increased the demand for high-performance and energy efficient computing systems. Traditional computer architectures based on the Von Neumann model require continuous data transfer between the processor and memory, resulting in a major performance limitation known as the Von Neumann Bottleneck.\n\nKeywords: In-Memory Computing, Von Neumann Bottleneck, AI, ReRAM, Memristor.";
-            sync();
+    async function downloadPDF() {
+        const element = document.getElementById('pdf-template');
+        const topic = document.getElementById('inTopic').value.trim() || 'Abstract';
+        const opt = {
+            margin: 0,
+            filename: `${topic.replace(/\s+/g, '_')}.pdf`,
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
-    </script>
+        await html2pdf().set(opt).from(element).save();
+    }
+
+    window.onload = () => {
+        // Initial Preset matching user reference
+        document.getElementById('inTopic').value = "IN-MEMORY COMPUTING";
+        document.getElementById('inName').value = "Vishnu C H";
+        document.getElementById('inRoll').value = "60";
+        document.getElementById('inAbstract').value = "The rapid growth of Artificial Intelligence (AI), Machine Learning (ML), and data intensive applications has significantly increased the demand for high-performance and energy efficient computing systems. Traditional computer architectures based on the Von Neumann model require continuous data transfer between the processor and memory, resulting in a major performance limitation known as the Von Neumann Bottleneck.\n\nKeywords: In-Memory Computing, Von Neumann Bottleneck, AI, ReRAM, Memristor.";
+        sync();
+    };
+</script>
 </body>
 </html>
